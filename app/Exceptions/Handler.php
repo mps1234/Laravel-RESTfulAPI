@@ -5,7 +5,8 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-
+use App\Traits\ApiResponser;
+use Illuminate\Validation\ValidationException;
 class Handler extends ExceptionHandler
 {
     /**
@@ -13,6 +14,7 @@ class Handler extends ExceptionHandler
      *
      * @var array
      */
+    use ApiResponser;
     protected $dontReport = [
         \Illuminate\Auth\AuthenticationException::class,
         \Illuminate\Auth\Access\AuthorizationException::class,
@@ -44,6 +46,9 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if($exception instanceof ValidationException){
+            return $this->convertValidationExceptionToResponse($exception, $request);
+        }
         return parent::render($request, $exception);
     }
 
@@ -62,4 +67,12 @@ class Handler extends ExceptionHandler
 
         return redirect()->guest(route('login'));
     }
+
+    /*taken out from the definition of render*/
+     protected function convertValidationExceptionToResponse(ValidationException $e, $request)
+         {
+        $errors = $e->validator->errors()->getMessages();
+        return $this->errorResponse($errors, 422);
+         }
+
 }

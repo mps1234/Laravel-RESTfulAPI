@@ -40,6 +40,24 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token', 'verification_token',
     ];
+    //mutators
+    public function setNameAttribute($name){
+
+        $this->attributes['name'] = strtolower($name);
+
+    }
+    //accessor
+    public function getNameAttribute($name){
+
+       return ucwords($name);
+
+    }
+    //mutator for email
+     public function setEmailAttribute($email){
+
+        $this->attributes['email'] = strtolower($email);
+
+    }
 
     public function isVerified(){
         return $this->verified == User::VERIFIED_USER;
