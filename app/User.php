@@ -20,6 +20,8 @@ class User extends Authenticatable
     const ADMIN_USER = 'true';
     const REGULAR_USER = 'false';
 
+    protected $table = 'users';
+
     protected $fillable = [
         'name', 
         'email', 
@@ -47,7 +49,7 @@ class User extends Authenticatable
         return $this->admin == User::ADMIN_USER; 
     }
 
-    public static function generateVerificatinCode(){
+    public static function generateVerificationCode(){
         return str_random(40);
     }
 }

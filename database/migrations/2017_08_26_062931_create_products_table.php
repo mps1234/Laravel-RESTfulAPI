@@ -14,6 +14,7 @@ class CreateProductsTable extends Migration
      */
     public function up()
     {
+   
         Schema::create('products', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
@@ -21,9 +22,9 @@ class CreateProductsTable extends Migration
             $table->integer('quantity')->unsigned();
             $table->string('status')->default(Product::UNAVAILABLE_PRODUCT);
             $table->string('image');
-            $table->string('seller_id')->unsigned();
+            $table->integer('seller_id')->unsigned();
             $table->timestamps();
-
+            
             $table->foreign('seller_id')->references('id')->on('users');
         });
     }
