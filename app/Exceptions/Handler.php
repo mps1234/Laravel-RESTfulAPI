@@ -7,6 +7,8 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use App\Traits\ApiResponser;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Auth\AuthorizationException;
 class Handler extends ExceptionHandler
 {
     /**
@@ -49,6 +51,20 @@ class Handler extends ExceptionHandler
         if($exception instanceof ValidationException){
             return $this->convertValidationExceptionToResponse($exception, $request);
         }
+
+
+        if($exception instanceof ModelNotFoundException){
+            $modelName = strtolower(class_basename($exception->getModel()));
+            return $this->errorResponse("Does not exists any {$modelName} with the specified identificator", 404);
+        }
+
+        if($exception instanceof AuthenticationException){
+            return $this->unauthenticated($request, $exception);
+        }
+
+        if($exception instanceof AuthorizationException){
+            return $this->errorResponse($exception->getMessage(), 403);
+        }
         return parent::render($request, $exception);
     }
 
@@ -61,11 +77,12 @@ class Handler extends ExceptionHandler
      */
     protected function unauthenticated($request, AuthenticationException $exception)
     {
-        if ($request->expectsJson()) {
+        /*if ($request->expectsJson()) {
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 
-        return redirect()->guest(route('login'));
+        return redirect()->guest(route('login'));*/
+        return $this->errorResponse('Unauthenticated.', 401);
     }
 
     /*taken out from the definition of render*/
