@@ -12,6 +12,7 @@ use Illuminate\Auth\AuthorizationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Illuminate\Database\QueryException;
 
 class Handler extends ExceptionHandler
 {
@@ -81,7 +82,23 @@ class Handler extends ExceptionHandler
         if($exception instanceof HttpException){
             return $this->errorResponse($exception->getMessage(), $exception->getStatusCode());
         }
-        return parent::render($request, $exception);
+
+        if($exception instanceof QueryException){
+            //dd($exception);
+            $errorCode = $exception->errorInfo[1];
+            if($errorCode == 1451){
+                return $this->errorResponse('Cannot remove this resource permanently. It is related with any other resource', 409);
+            }
+        }
+
+        //if debug mode is on then detailed 
+        if(config('app.debug')){
+            return parent::render($request, $exception);
+        }
+        //unexpected exception
+        return $this->errorResponse('Unexpected Exception. Try later', 500);
+
+        
     }
 
     /**
