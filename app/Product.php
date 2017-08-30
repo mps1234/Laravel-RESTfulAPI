@@ -25,6 +25,9 @@ class Product extends Model
     	'image',
     	'seller_id',
     ];
+    protected $hidden = [
+        'pivot'
+    ];
     //status active nd inactive, for this create const
 
     /**
